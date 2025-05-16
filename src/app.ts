@@ -80,6 +80,9 @@ const main = async () => {
       const nombreFormateado =
         nombre.charAt(0).toUpperCase() + nombre.slice(1).toLowerCase();
 
+      const imgUrl =
+        "https://app.eduardespiritusanto.com/registrate-aqui-app.jpeg";
+
       let municipioTitle;
 
       switch (municipio) {
@@ -114,7 +117,7 @@ const main = async () => {
         )}) al evento para participar. 
         \n*¡Te esperamos! ☘️*
         `,
-        { media: urlMedia ?? null }
+        { media: imgUrl ?? null }
       );
 
       try {
@@ -143,7 +146,7 @@ const main = async () => {
     handleCtx(async (bot, req, res) => {
       const { phone, name, cedula, municipio, slug_premio } = req.body;
 
-      console.log("DATA", req.body);
+      // console.log("DATA", req.body);
       const nombre = name.split(" ")[0].toUpperCase();
       const nombreFormateado =
         nombre.charAt(0).toUpperCase() + nombre.slice(1).toLowerCase();
