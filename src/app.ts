@@ -11,7 +11,13 @@ import { MongoAdapter as Database } from "@builderbot/database-mongo";
 import { BaileysProvider as Provider } from "@builderbot/provider-baileys";
 import dotenv from "dotenv";
 import { MongoClient } from "mongodb";
-import { convertirCedula, getFecha, getHora, getLugar } from "./utils";
+import {
+  convertirCedula,
+  getFecha,
+  getHora,
+  getLugar,
+  getPremio,
+} from "./utils";
 import cors from "cors";
 dotenv.config();
 
@@ -61,6 +67,7 @@ const main = async () => {
 
   // Manejo de preflight requests para CORS
   adapterProvider.server.options("*", cors());
+
   // Inicializar la conexión a MongoDB
   await initMongo();
 
@@ -131,6 +138,77 @@ const main = async () => {
     })
   );
 
+  adapterProvider.server.post(
+    "/v1/ganador",
+    handleCtx(async (bot, req, res) => {
+      const { phone, name, cedula, municipio, slug_premio } = req.body;
+
+      console.log("DATA", req.body);
+      const nombre = name.split(" ")[0].toUpperCase();
+      const nombreFormateado =
+        nombre.charAt(0).toUpperCase() + nombre.slice(1).toLowerCase();
+
+      let municipioTitle;
+
+      switch (municipio) {
+        case "caleta":
+          municipioTitle = "Caleta";
+          break;
+        case "cumayasa":
+          municipioTitle = "Cumayasa";
+          break;
+        case "guaymate":
+          municipioTitle = "Guaymate";
+          break;
+        case "villa-hermosa":
+          municipioTitle = "Villa Hermosa";
+          break;
+        case "la-romana":
+          municipioTitle = "La Romana";
+          break;
+        default:
+          municipioTitle = "Municipio no válido";
+          break;
+      }
+
+      const getPremioWs = getPremio(slug_premio);
+
+      await bot.sendMessage(
+        phone,
+        `🎉 *_MUCHAS FELICIDADES_* 🎉  *${nombreFormateado}*, has sido ganadora de *${
+          getPremioWs.title
+        }*. 
+        \nDebes pasar a recoger tu premio en *${municipioTitle}*, 📍 en *${getLugar(
+          municipio
+        )}*, 🗓️ el *${getFecha(municipio)}* a las *${getHora(municipio)}*. 
+        \nRecuerda que debes *llevar tu cédula* (${convertirCedula(
+          cedula
+        )}) para poder retirar tu premio. 
+        \n*¡Te esperamos! ☘️*
+        `,
+        { media: getPremioWs.imgUrl ?? null }
+      );
+
+      try {
+        // Usamos la conexión directa a MongoDB en lugar del adaptador
+        const db = await initMongo();
+        if (!db) {
+          throw new Error("No se pudo conectar a la base de datos");
+        }
+
+        const collection = db.collection("MadresGanadoras");
+        await collection.insertOne({
+          phone,
+          name,
+          cedula,
+          createdAt: new Date(),
+        });
+      } catch (error) {
+        console.error("Error al guardar registro:", error);
+      }
+      return res.end("sent");
+    })
+  );
   httpServer(+PORT);
   console.log(`🚀 Servidor iniciado en el puerto ${PORT}`);
 };

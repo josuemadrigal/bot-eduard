@@ -1,3 +1,6 @@
+import { mensajePersonalizado } from "./mensajePesonalizado";
+import { premios } from "./premios";
+
 export const convertirCedula = (cedula: string) => {
   const partes = cedula.split("-");
 
@@ -11,47 +14,9 @@ export const convertirCedula = (cedula: string) => {
   );
 };
 
-const personalizado = [
-  {
-    caleta: {
-      Fecha: "Jueves 22 de Mayo",
-      Hora: "4:00 pm",
-      Lugar: "la Cancha de Caleta",
-    },
-  },
-  {
-    cumayasa: {
-      Fecha: "Jueves 22 de Mayo",
-      Hora: "2:00 pm",
-      Lugar: "la Cancha de Cumayasa",
-    },
-  },
-  {
-    guaymate: {
-      Fecha: "Viernes 23 de Mayo",
-      Hora: "5:00 pm",
-      Lugar: "la Emilio Prud Homme, frente al parque",
-    },
-  },
-  {
-    "villa-hermosa": {
-      Fecha: "Sábado 24 de Mayo",
-      Hora: "2:00 pm",
-      Lugar: "el Politécnico Luis Heriberto Payán",
-    },
-  },
-  {
-    "la-romana": {
-      Fecha: "Sábado 24 de Mayo",
-      Hora: "4:00 pm",
-      Lugar: "el Polideportivo Eleoncio Mercedes",
-    },
-  },
-];
-
 // Función para obtener el lugar
 export function getLugar(municipio) {
-  const item = personalizado.find(
+  const item = mensajePersonalizado.find(
     (item) => Object.keys(item)[0].toLowerCase() === municipio.toLowerCase()
   );
   return item ? item[Object.keys(item)[0]].Lugar : "el lugar indicado";
@@ -59,7 +24,7 @@ export function getLugar(municipio) {
 
 // Función para obtener la fecha
 export function getFecha(municipio) {
-  const item = personalizado.find(
+  const item = mensajePersonalizado.find(
     (item) => Object.keys(item)[0].toLowerCase() === municipio.toLowerCase()
   );
   return item ? item[Object.keys(item)[0]].Fecha : "la fecha indicada";
@@ -67,8 +32,15 @@ export function getFecha(municipio) {
 
 // Función para obtener la hora
 export function getHora(municipio) {
-  const item = personalizado.find(
+  const item = mensajePersonalizado.find(
     (item) => Object.keys(item)[0].toLowerCase() === municipio.toLowerCase()
   );
   return item ? item[Object.keys(item)[0]].Hora : "la hora indicada";
+}
+
+export function getPremio(premio) {
+  const item = premios.find(
+    (item) => Object.keys(item)[0].toLowerCase() === premio.toLowerCase()
+  );
+  return item ? item[Object.keys(item)[0]] : {};
 }
